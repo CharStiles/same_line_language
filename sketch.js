@@ -56,7 +56,7 @@ function preload() {
     let shapeSet = {
       svgData: loadStrings(`15 Shapes of Same\\${name}.svg`),
       svgShapeData: loadStrings(`15 Shapes of Same\\${name} shape.svg`),
-      videoPlayer: createVideo(`15 Shapes of Same\\${name}.webm`),
+      videoPlayer: createVideo(`15 Shapes of Same\\${name}.mp4`),
       polylines: null,
       polylines2: null
     };
@@ -64,7 +64,26 @@ function preload() {
     shapeSet.videoPlayer.hide();
     shapeSet.videoPlayer.loop();
     shapeSet.videoPlayer.volume(0);
-    shapeSet.videoPlayer.play();
+
+    let videoElement = shapeSet.videoPlayer.elt;
+    
+    // Set initial playback position to 25% of duration
+    videoElement.addEventListener('loadedmetadata', () => {
+      let startTime = videoElement.duration * 0.33;
+      videoElement.currentTime = startTime;
+      videoElement.play();
+    });
+
+    // Check time during playback
+    videoElement.addEventListener('timeupdate', () => {
+      let endTime = videoElement.duration * 0.66;  // 75% point
+      let startTime = videoElement.duration * 0.33; // 25% point
+      
+      // If we reach 75%, jump back to 25%
+      if (videoElement.currentTime >= endTime) {
+        videoElement.currentTime = startTime;
+      }
+    });
 
     shapeSets.push(shapeSet);
   });
@@ -186,7 +205,7 @@ function drawVideo(shapeSet) {
   //  let middleEnd = ((height ) / 3)*2.; // End of the middle third
   let middleStart = (height / 2 )- (height* (params.windowPct /100.))/2.; // Start of the middle third
   let middleEnd = (height / 2) + (height* (params.windowPct/100))/2.; // End of the middle third
-  console.log("videoPosition:", videoPosition, "middleEnd:", middleEnd);
+  // console.log("videoPosition:", videoPosition, "middleEnd:", middleEnd);
 
    // Calculate shapeAlpha based on the video position
    shapeAlpha = 0; // Default to 0
